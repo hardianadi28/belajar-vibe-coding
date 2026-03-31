@@ -6,7 +6,7 @@ const app = new Elysia()
     status: "ok",
     message: "Welcome to Elysia + Bun + Drizzle + MySQL",
   }))
-  .group("/api", (app) => app.use(usersRoute))
+  .use(usersRoute)
   .listen(3000);
 
 console.log(
