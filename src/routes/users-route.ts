@@ -55,4 +55,28 @@ export const usersRoute = new Elysia({ prefix: "/api/users" }).post(
       password: t.String(),
     }),
   }
-);
+)
+.delete("/logout", async ({ headers, set }) => {
+  try {
+    const authHeader = headers["authorization"];
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.slice(7)
+      : undefined;
+
+    await userService.logoutUser(token);
+
+    set.status = 200;
+    return {
+      status: 200,
+      message: "user logged out successfully",
+      data: null,
+    };
+  } catch (error: any) {
+    set.status = 400;
+    return {
+      status: 400,
+      message: error.message || "Something went wrong",
+      data: null,
+    };
+  }
+});

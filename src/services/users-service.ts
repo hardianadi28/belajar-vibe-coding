@@ -69,3 +69,18 @@ export const loginUser = async (data: any) => {
     token,
   };
 };
+
+export const logoutUser = async (token: string | undefined) => {
+  if (!token) {
+    throw new Error("user not logged in");
+  }
+
+  const result = await db.delete(sessions).where(eq(sessions.token, token));
+
+  // Drizzle MySQL delete returns ResultSetHeader with affectedRows
+  if (result[0].affectedRows === 0) {
+    throw new Error("user not logged in");
+  }
+
+  return true;
+};
