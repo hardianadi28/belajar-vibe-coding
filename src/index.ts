@@ -1,20 +1,12 @@
 import { Elysia } from "elysia";
-import { db } from "./db";
-import { users } from "./db/schema";
+import { usersRoute } from "./routes/users-route";
 
 const app = new Elysia()
   .get("/", () => ({
     status: "ok",
     message: "Welcome to Elysia + Bun + Drizzle + MySQL",
   }))
-  .get("/users", async () => {
-    try {
-      const allUsers = await db.select().from(users);
-      return allUsers;
-    } catch (error) {
-      return { error: "Could not fetch users", details: (error as Error).message };
-    }
-  })
+  .group("/api", (app) => app.use(usersRoute))
   .listen(3000);
 
 console.log(
