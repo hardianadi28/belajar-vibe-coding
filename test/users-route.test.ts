@@ -1,6 +1,12 @@
-import { describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { Elysia } from "elysia";
 import { usersRoute } from "../src/routes/users-route";
+
+interface ApiResponse<T = any> {
+  status: number;
+  message: string;
+  data: T;
+}
 
 // Mock the user service
 const mockRegisterUser = mock();
@@ -15,6 +21,12 @@ mock.module("../src/services/users-service", () => ({
 
 describe("Users Route", () => {
   const app = new Elysia().use(usersRoute);
+
+  beforeEach(() => {
+    mockRegisterUser.mockClear();
+    mockLoginUser.mockClear();
+    mockLogoutUser.mockClear();
+  });
 
   describe("POST /api/users (Register)", () => {
     it("should return 201 when registration is successful", async () => {
@@ -34,7 +46,7 @@ describe("Users Route", () => {
       );
 
       expect(response.status).toBe(201);
-      const body = await response.json();
+      const body = (await response.json()) as ApiResponse;
       expect(body).toEqual({
         status: 201,
         message: "user created successfully",
@@ -74,7 +86,7 @@ describe("Users Route", () => {
       );
 
       expect(response.status).toBe(400);
-      const body = (await response.json()) as any;
+      const body = (await response.json()) as ApiResponse;
       expect(body.message).toBe("user already exists");
     });
   });
@@ -96,7 +108,7 @@ describe("Users Route", () => {
       );
 
       expect(response.status).toBe(200);
-      const body = (await response.json()) as any;
+      const body = (await response.json()) as ApiResponse;
       expect(body).toEqual({
         status: 200,
         message: "user logged in successfully",
@@ -134,7 +146,7 @@ describe("Users Route", () => {
       );
 
       expect(response.status).toBe(400);
-      const body = (await response.json()) as any;
+      const body = (await response.json()) as ApiResponse;
       expect(body.message).toBe("incorrect email or password combination");
     });
   });
@@ -153,7 +165,7 @@ describe("Users Route", () => {
       );
 
       expect(response.status).toBe(200);
-      const body = (await response.json()) as any;
+      const body = (await response.json()) as ApiResponse;
       expect(body.message).toBe("user logged out successfully");
       expect(mockLogoutUser).toHaveBeenCalledWith("fake-token");
     });
@@ -185,7 +197,7 @@ describe("Users Route", () => {
       );
 
       expect(response.status).toBe(400);
-      const body = (await response.json()) as any;
+      const body = (await response.json()) as ApiResponse;
       expect(body.message).toBe("user not logged in");
     });
   });
